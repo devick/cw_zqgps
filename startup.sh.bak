@@ -1,0 +1,12 @@
+#!/bin/sh         //bash文件头
+APP_HOME=/home/blmcrm/crm/A      //要执行的java文件中bin文件的上一个目录，我的目录是/home/blmcrm/crm/A/bin/blm......(后面不写了)，总之就是写bin目录前面的部分，因为jar包在bin目录里面，如果不在bin里面，也如此改一下就行
+CLASSPATH=$APP_HOME/bin           //bin目录当然是包含jar包的目录啦
+for i in "$APP_HOME"/bin/*.jar    //引进所有的jar包，这里用的循环，当然也可以按照这个格式一个一个写
+do 
+	CLASSPATH="$CLASSPATH":"$i"       //环境变量就这格式
+done
+export CLASSPATH=.:$CLASSPATH        //不写这个可能会说找不到main类
+echo ${CLASSPATH}                    //打印环境变量，可以不写
+java -Xms50m -Xmx250m org.gdh.blm.exec.Syslog_csv 
+exit(结束)     //执行java程序， 其中-Xms50m -Xmx250m是运行内存什么的设置，后面的是bin目录以后一直到.class的路径，我的是Syslog_csv.class,所以我最后那个是Syslog_csv。
+ 
