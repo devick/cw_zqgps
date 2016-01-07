@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<system>
+	<!-- 常量配置 -->
+	<constants>
+		<!-- 经纬度转地址接口 -->
+		<addressUrl>http://www.e456.cn:8080/Address/getAddress</addressUrl>
+		<!-- 获取定位间隔时间 单位毫秒 -->
+		<lineTime>0</lineTime>
+		<!-- 一次修改多少车辆-->
+		<saveCount>100</saveCount>
+		<!-- 线程运行间隔时间 单位秒 -->
+		<shankHandTime>0</shankHandTime>
+		<!-- 
+		获取车旺车辆定位表imei查询条件     AND bak1 = '4'
+		   3天内更新的  注意：要在逗号前加一个\转义
+			  and to_number(gps_time) > ((TRUNC(SYSDATE)-3) - to_date('1970-01-01'\,'yyyy-MM-dd')) * 86400000 order by to_number(gps_time)  
+		-->
+		<sql>   and to_number(gps_time) > ((TRUNC(SYSDATE)-3) - to_date('1970-01-01'\,'yyyy-MM-dd')) * 86400000 order by to_number(gps_time)  </sql>
+	</constants>
+</system>

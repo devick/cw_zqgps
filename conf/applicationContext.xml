@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans  
+	http://www.springframework.org/schema/beans/spring-beans-3.0.xsd   
+	http://www.springframework.org/schema/tx    
+    http://www.springframework.org/schema/tx/spring-tx-3.0.xsd 
+    http://www.springframework.org/schema/aop  
+    http://www.springframework.org/schema/aop/spring-aop-3.0.xsd">
+	<!-- 导入配置文件 -->
+	<bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="location">
+			<value>conf/config.properties</value>
+		</property>
+	</bean>
+
+	<!-- 配置数据库连接池 -->
+	<bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource">
+		<!-- 数据库驱动 -->
+		<property name="driverClass" value="${db.driverClass}" />
+		<!-- 数据库连接字符串 -->
+		<property name="jdbcUrl" value="${db.jdbcUrl}" />
+		<!-- 数据库用户名 -->
+		<property name="user" value="${db.user}" />
+		<!-- 数据库密码 -->
+		<property name="password" value="${db.password}" />
+		<!-- 数据库连接池最大连接数 -->
+		<property name="maxPoolSize" value="${db.maxPoolSize}" />
+		<!-- 设置数据库连接池的连接的最大空闲时间,单位为秒 -->
+		<property name="maxIdleTime" value="${db.maxIdleTime}" />
+		<!-- 数据库连接池的最小连接数 -->
+		<property name="minPoolSize" value="${db.minPoolSize}" />
+		<!-- 初始化连接数 -->
+		<property name="initialPoolSize" value="${db.initialPoolSize}" />
+		<!--每隔多久检查所有连接池中的空闲连接。单位秒，Default: 0 -->
+		<property name="idleConnectionTestPeriod" value="${db.idleConnectionTestPeriod}" />
+		<!--定义在从数据库获取新连接失败后重复尝试的次数。Default: 30 -->
+		<property name="acquireRetryAttempts" value="${db.acquireRetryAttempts}"/>
+		<!--当连接池中的连接耗尽的时候c3p0一次同时获取的连接数。Default: 3 -->
+		<property name="acquireIncrement" value="${db.acquireIncrement}"/>
+		
+		<property name="testConnectionOnCheckout" value="${db.testConnectionOnCheckout}"/>
+		<property name="maxStatements" value="${db.maxStatements}"/>
+	</bean>
+	<!-- MonitorInfoDaoImpl -->
+	<bean id="monitorInfoDaoImpl" class="com.httpclient.dao.impl.MonitorInfoDaoImpl">
+		<property name="dataSource">
+			<ref bean="dataSource" />
+		</property>
+	</bean>
+	<!-- BusinessManager -->
+	<bean id="businessManager" class="com.httpclient.biz.BusinessManager">
+		<property name="carMonitorInfoDao">
+			<ref bean="monitorInfoDaoImpl" />
+		</property>
+	</bean>
+	
+	<!-- 事物管理 -->
+	<!-- jdbc事物管理器 -->
+	<bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource">
+			<ref bean="dataSource" />
+		</property>
+	</bean>
+	<!-- 配置事务通知 -->
+	<tx:advice id="txAdvice" transaction-manager="transactionManager">
+		<tx:attributes>
+			<tx:method name="get*" read-only="true" />
+			<tx:method name="find*" read-only="true" />
+			<tx:method name="search*" read-only="true" />
+			<tx:method name="query*" read-only="true" />
+			<tx:method name="update*" propagation="REQUIRED" />
+			<tx:method name="del*" propagation="REQUIRED" />
+			<tx:method name="add*" propagation="SUPPORTS" />
+			<tx:method name="save*" propagation="SUPPORTS" />
+			<tx:method name="*" propagation="REQUIRED" read-only="true" />
+		</tx:attributes>
+	</tx:advice>
+	<!-- 事务入口 -->
+	<aop:config>
+		<aop:pointcut expression="execution (public * com.httpclient.biz.*.*(..))"
+			id="executeMethod" />
+		<aop:advisor advice-ref="txAdvice" pointcut-ref="executeMethod" />
+	</aop:config>
+	
+</beans>
